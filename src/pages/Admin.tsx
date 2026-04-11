@@ -547,6 +547,91 @@ const SocialTab = () => {
   );
 };
 
+// ---- Services Tab ----
+const ServicesTab = () => {
+  const { data: services, isLoading } = useAllServices();
+  const upsertMut = useUpsertService();
+  const deleteMut = useDeleteService();
+  const [editing, setEditing] = useState<any | null>(null);
+
+  if (isLoading) return <Loading />;
+
+  const newService = () => setEditing({
+    title: "", description: "", long_description: "", price: "Contact Us", price_label: "Starting from",
+    icon: "shield", features: [], category: "Security", is_featured: false, is_active: true,
+    order_index: (services?.length || 0) + 1,
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-2xl text-foreground">Services</h2>
+        <button onClick={newService} className="font-mono-terminal text-xs px-4 py-2 bg-primary/20 text-primary border border-primary/40 rounded-lg hover:bg-primary/30 transition-all">+ Add Service</button>
+      </div>
+
+      {editing && (
+        <div className="glass-card rounded-xl p-6 gradient-border space-y-4">
+          <h3 className="font-display text-lg text-primary">{editing.id ? "Edit" : "New"} Service</h3>
+          {[
+            { key: "title", label: "Title" }, { key: "description", label: "Description" },
+            { key: "long_description", label: "Long Description", type: "textarea" },
+            { key: "price", label: "Price" }, { key: "price_label", label: "Price Label (e.g. Starting from)" },
+            { key: "icon", label: "Icon (shield/search/clipboard/alert-triangle/target/book-open)" },
+            { key: "category", label: "Category" },
+          ].map((f) => (
+            <div key={f.key}>
+              <label className="font-mono-terminal text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">{f.label}</label>
+              {f.type === "textarea" ? (
+                <textarea value={editing[f.key] || ""} onChange={(e) => setEditing((prev: any) => ({ ...prev, [f.key]: e.target.value }))} rows={3} className="w-full bg-background/50 border border-border rounded-lg px-3 py-2 font-mono-terminal text-sm text-foreground focus:outline-none focus:border-primary/50 resize-none" />
+              ) : (
+                <input value={editing[f.key] || ""} onChange={(e) => setEditing((prev: any) => ({ ...prev, [f.key]: e.target.value }))} className="w-full bg-background/50 border border-border rounded-lg px-3 py-2 font-mono-terminal text-sm text-foreground focus:outline-none focus:border-primary/50" />
+              )}
+            </div>
+          ))}
+          <div>
+            <label className="font-mono-terminal text-[10px] text-muted-foreground uppercase tracking-wider block mb-1">Features (comma separated)</label>
+            <input value={(editing.features || []).join(", ")} onChange={(e) => setEditing((prev: any) => ({ ...prev, features: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) }))} className="w-full bg-background/50 border border-border rounded-lg px-3 py-2 font-mono-terminal text-sm text-foreground focus:outline-none focus:border-primary/50" />
+          </div>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={editing.is_featured} onChange={(e) => setEditing((prev: any) => ({ ...prev, is_featured: e.target.checked }))} className="accent-primary" />
+              <span className="font-mono-terminal text-xs text-muted-foreground">Featured</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={editing.is_active} onChange={(e) => setEditing((prev: any) => ({ ...prev, is_active: e.target.checked }))} className="accent-primary" />
+              <span className="font-mono-terminal text-xs text-muted-foreground">Active</span>
+            </label>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => { upsertMut.mutate(editing); setEditing(null); }} className="font-mono-terminal text-xs px-5 py-2 bg-primary/20 text-primary border border-primary/40 rounded-lg hover:bg-primary/30 transition-all">Save</button>
+            <button onClick={() => setEditing(null)} className="font-mono-terminal text-xs px-5 py-2 text-muted-foreground border border-border rounded-lg hover:bg-secondary transition-all">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-3">
+        {(services || []).map((s) => (
+          <div key={s.id} className="glass-card rounded-xl p-4 gradient-border flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-display text-lg text-foreground">{s.title}</h3>
+                <span className="font-mono-terminal text-[9px] px-2 py-0.5 bg-primary/10 text-primary rounded-full border border-primary/20">{s.price}</span>
+                {s.is_featured && <span className="font-mono-terminal text-[9px] px-2 py-0.5 bg-neon-green/10 text-neon-green rounded-full border border-neon-green/20">FEATURED</span>}
+                {!s.is_active && <span className="font-mono-terminal text-[9px] px-2 py-0.5 bg-neon-red/10 text-neon-red rounded-full border border-neon-red/20">INACTIVE</span>}
+              </div>
+              <p className="text-sm text-muted-foreground truncate">{s.description}</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button onClick={() => setEditing(s)} className="font-mono-terminal text-xs px-3 py-1.5 text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-all">Edit</button>
+              <button onClick={() => deleteMut.mutate(s.id)} className="font-mono-terminal text-xs px-3 py-1.5 text-neon-red border border-neon-red/30 rounded-lg hover:bg-neon-red/10 transition-all">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Loading = () => (
   <div className="flex items-center justify-center py-20">
     <div className="font-mono-terminal text-sm text-primary animate-pulse">Loading data...</div>
