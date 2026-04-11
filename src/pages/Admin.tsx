@@ -20,12 +20,15 @@ import {
   useContactMessages,
   useMarkMessageRead,
   useDeleteMessage,
+  useAllServices,
+  useUpsertService,
+  useDeleteService,
 } from "@/hooks/use-cms";
 import CyberBackground3D from "@/components/CyberBackground3D";
 
 const ADMIN_KEY = "teamcyberops2024";
 
-type TabId = "dashboard" | "content" | "projects" | "team" | "social" | "blog" | "messages";
+type TabId = "dashboard" | "content" | "projects" | "team" | "social" | "blog" | "messages" | "services";
 
 const Admin = () => {
   const [params] = useSearchParams();
@@ -53,6 +56,7 @@ const Admin = () => {
     { id: "messages", label: "Messages" },
     { id: "content", label: "Content" },
     { id: "projects", label: "Projects" },
+    { id: "services", label: "Services" },
     { id: "blog", label: "Blog" },
     { id: "team", label: "Team" },
     { id: "social", label: "Social" },
@@ -65,7 +69,7 @@ const Admin = () => {
         <div className="border-b border-border/50 glass-strong sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="font-display text-xl text-primary text-glow-blue">CMS DASHBOARD</h1>
+              <h1 className="font-display text-xl text-primary text-glow-blue">TeamCyberØps CMS</h1>
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
                 <span className="font-mono-terminal text-[10px] text-neon-green">ADMIN</span>
